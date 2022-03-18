@@ -115,7 +115,7 @@ MonoBehaviour:
   charHP: 100
   charATK: 0
   charDEF: 0
-  nameTag: {fileID: 0}
+  nameTag: {fileID: 7405405323845041935}
 --- !u!1 &1351283070904765462
 GameObject:
   m_ObjectHideFlags: 0

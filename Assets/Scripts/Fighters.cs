@@ -8,6 +8,7 @@ public class Fighters : MonoBehaviour
     public int charHP = 100;
     public int charATK;
     public int charDEF;
+    public int charSPD;
 
     public GameObject nameTag;
 
@@ -21,6 +22,7 @@ public class Fighters : MonoBehaviour
     {
         charATK = Random.Range(5, 20);
         charDEF = Random.Range(5, 20);
+        charSPD = Random.Range(10, 30);
     }
 
     public void UpdateName(string newName)
