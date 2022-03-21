@@ -10,14 +10,13 @@ public class SimBattle : MonoBehaviour
     public string[] fighterNames;
     public GameObject[] aFighters;
     public GameObject[] bFighters;
-    public Material[] mats;
 
     // Start is called before the first frame update
     void Start()
     {
         // Create teams and call generation
-        aFighters = CreateTeamA(aFighters);
-        bFighters = CreateTeamB(bFighters);
+        aFighters = GenerateTeam(aFighters);
+        bFighters = GenerateTeam(bFighters);
 
         // Randomly chose fighters
         GameObject randA = aFighters[Random.Range(0, teamSize)];
@@ -25,7 +24,7 @@ public class SimBattle : MonoBehaviour
         Battle(randA, randB);
     }
 
-    public GameObject[] CreateTeamA(GameObject[] incTeam)
+    public GameObject[] GenerateTeam(GameObject[] incTeam)
     {
         // Create team and spawn fighters
         incTeam = new GameObject[teamSize];
@@ -36,25 +35,6 @@ public class SimBattle : MonoBehaviour
 
             // Asign to team
             incTeam[i] = go;
-
-            // Pick random name for fighter
-            go.GetComponent<Fighters>().UpdateName(fighterNames[Random.Range(0, fighterNames.Length)]);
-        }
-
-        return incTeam;
-    }
-    public GameObject[] CreateTeamB(GameObject[] incTeam)
-    {
-        // Create team and spawn fighters
-        incTeam = new GameObject[teamSize];
-        for (int i = 0; i < teamSize; i++)
-        {
-            // Spawn fighter (go = game object)
-            GameObject go = Instantiate(fighterPrefab);
-
-            // Asign to team
-            incTeam[i] = go;
-            go.GetComponent<MeshRenderer>().material = mats[MAT_TeamB];
 
             // Pick random name for fighter
             go.GetComponent<Fighters>().UpdateName(fighterNames[Random.Range(0, fighterNames.Length)]);
