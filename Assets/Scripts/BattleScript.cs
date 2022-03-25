@@ -8,6 +8,7 @@ public class BattleScript : MonoBehaviour
     public UI textBox;
     private string message;
     private bool simulate = true;
+    public string victor;
 
     public GameObject fighterPrefab;
     public int teamSize = 3;
@@ -17,8 +18,11 @@ public class BattleScript : MonoBehaviour
     public Material MAT_TeamA;
     public Material MAT_TeamB;
 
-   // Define gamestates
-   public enum GameState
+    public GameObject randA;
+    public GameObject randB;
+
+    // Define gamestates
+    public enum GameState
     {
         input,
         prep,
@@ -62,29 +66,47 @@ public class BattleScript : MonoBehaviour
                     message = "Preparing...";
                     Debug.Log(message);
                     textBox.NewMessage(message);
+
+                    Teams();
                     StartCoroutine(TransitionTimer(2f, GameState.select));
 
                     break;
                 case GameState.select:
-                    message = "Picking fighters";
-                    Debug.Log(message);
-                    textBox.NewMessage(message);
+                    // Randomly choose fighters
+                    randA = aFighters[Random.Range(0, teamSize)];
+                    randB = bFighters[Random.Range(0, teamSize)];
 
-                    Teams();
-                    StartCoroutine(TransitionTimer(2f, GameState.fight));
+                    if(randA.GetComponent<Fighters>().charHP >= 0 && randB.GetComponent<Fighters>().charHP >= 0)
+                    {
+                        message = "Picking fighters...";
+                        Debug.Log(message);
+                        textBox.NewMessage(message);
+
+                        StartCoroutine(TransitionTimer(2f, GameState.fight));
+                    }
+                    else
+                    {
+                        StartCoroutine(TransitionTimer(0f, GameState.select));
+                    }
 
                     break;
                 case GameState.fight:
-                    // Randomly chose fighters
-                    GameObject randA = aFighters[Random.Range(0, teamSize)];
-                    GameObject randB = bFighters[Random.Range(0, teamSize)];
                     Battle(randA, randB);
+                    TeamCheck();
 
                     break;
                 case GameState.result:
+                    message = "The winner is...";
+                    Debug.Log(message);
+                    textBox.NewMessage(message);
+
+                    WinningTeam();
 
                     break;
                 case GameState.victory:
+                    message = "GAME END!!!";
+                    Debug.Log(message);
+                    textBox.NewMessage(message);
 
                     break;
             }
@@ -123,24 +145,30 @@ public class BattleScript : MonoBehaviour
 
         if (fAStats.charSPD >= fBStats.charSPD)
         {
-            fBStats.charHP -= fAStats.charATK - fBStats.charDEF;
+            int dmg = fAStats.charATK - fBStats.charDEF;
+            dmg = Mathf.Clamp(dmg, 1, fAStats.charATK);
+            fBStats.charHP -= dmg;
 
             Debug.Log("Fighter A attacks Fighter B");
             Debug.Log("Fighter B's health is now: " + fBStats.charHP);
             message = "Fighter B has " + fBStats.charHP + "hp";
             Debug.Log(message);
+            Debug.Log(dmg);
             textBox.NewMessage(message);
 
             AStart(fighterA, fighterB);
         }
         else
         {
-            fAStats.charHP -= fBStats.charATK - fAStats.charDEF;
+            int dmg = fBStats.charATK - fAStats.charDEF;
+            dmg = Mathf.Clamp(dmg, 1, fBStats.charATK);
+            fAStats.charHP -= dmg;
 
             Debug.Log("Fighter B attacks Fighter A");
             Debug.Log("Fighter A's health is now: " + fAStats.charHP);
             message = "Fighter A has " + fAStats.charHP + "hp";
             Debug.Log(message);
+            Debug.Log(dmg);
             textBox.NewMessage(message);
 
             BStart(fighterA, fighterB);
@@ -152,7 +180,7 @@ public class BattleScript : MonoBehaviour
         }
         else
         {
-            StartCoroutine(TransitionTimer(2f, GameState.result));
+            StartCoroutine(TransitionTimer(2f, GameState.select));
         }
     }
 
@@ -162,12 +190,15 @@ public class BattleScript : MonoBehaviour
         Fighters fAStats = fighterA.GetComponent<Fighters>();
         Fighters fBStats = fighterB.GetComponent<Fighters>();
 
-        fAStats.charHP -= fBStats.charATK - fAStats.charDEF;
+        int dmg = fBStats.charATK - fAStats.charDEF;
+        dmg = Mathf.Clamp(dmg, 1, fBStats.charATK);
+        fAStats.charHP -= dmg;
 
         Debug.Log("Fighter B attacks Fighter A");
         Debug.Log("Fighter A's health is now: " + fAStats.charHP);
         message = "Fighter A has " + fAStats.charHP + "hp";
         Debug.Log(message);
+        Debug.Log(dmg);
         textBox.NewMessage(message);
 
         if (fAStats.charHP > 0 && fBStats.charHP > 0)
@@ -176,7 +207,7 @@ public class BattleScript : MonoBehaviour
         }
         else
         {
-            StartCoroutine(TransitionTimer(2f, GameState.result));
+            StartCoroutine(TransitionTimer(2f, GameState.select));
         }
     }
 
@@ -186,12 +217,15 @@ public class BattleScript : MonoBehaviour
         Fighters fAStats = fighterA.GetComponent<Fighters>();
         Fighters fBStats = fighterB.GetComponent<Fighters>();
 
-        fAStats.charHP -= fBStats.charATK - fAStats.charDEF;
+        int dmg = fAStats.charATK - fBStats.charDEF;
+        dmg = Mathf.Clamp(dmg, 1, fAStats.charATK);
+        fBStats.charHP -= dmg;
 
         Debug.Log("Fighter A attacks Fighter B");
         Debug.Log("Fighter B's health is now: " + fBStats.charHP);
         message = "Fighter B has " + fBStats.charHP + "hp";
         Debug.Log(message);
+        Debug.Log(dmg);
         textBox.NewMessage(message);
 
         if (fAStats.charHP > 0 && fBStats.charHP > 0)
@@ -200,9 +234,53 @@ public class BattleScript : MonoBehaviour
         }
         else
         {
-            StartCoroutine(TransitionTimer(2f, GameState.result));
+            StartCoroutine(TransitionTimer(2f, GameState.select));
         }
     }
+
+    public void TeamCheck()
+    {
+
+        int killed = 0;
+        for (int i = 0; i < teamSize; i++)
+        {
+            if (aFighters[i].GetComponent<Fighters>().charHP <= 0)
+            {
+                killed++;
+            }
+            if (killed >= teamSize)
+            {
+                Debug.Log("Team A is defeated!");
+                victor = "Team B";
+                StartCoroutine(TransitionTimer(2f, GameState.result));
+            }
+        }
+        killed = 0;
+        for (int x = 0; x < teamSize; x++)
+        {
+            if (bFighters[x].GetComponent<Fighters>().charHP <= 0)
+            {
+                //character is dead
+                killed++;
+            }
+            if (killed >= teamSize)
+            {
+                Debug.Log("Team B is defeated!");
+                victor = "Team A";
+                StartCoroutine(TransitionTimer(2f, GameState.result));
+            }
+        }
+    }
+
+    public void WinningTeam()
+    {
+        message = victor;
+        Debug.Log(message);
+        textBox.NewMessage(message);
+
+        StartCoroutine(TransitionTimer(2f, GameState.victory));
+    }
+
     IEnumerator TransitionTimer(float delay, GameState newState)
     {
         yield return new WaitForSeconds(delay);
