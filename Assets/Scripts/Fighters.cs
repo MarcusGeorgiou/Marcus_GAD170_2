@@ -20,7 +20,7 @@ public class Fighters : MonoBehaviour
 
     private void InitStats()
     {
-        charATK = Random.Range(15, 25);
+        charATK = Random.Range(15, 20);
         charDEF = Random.Range(1, 10);
         charSPD = Random.Range(10, 30);
     }

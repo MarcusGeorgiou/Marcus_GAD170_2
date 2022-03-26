@@ -176,7 +176,7 @@ public class BattleScript : MonoBehaviour
 
         if (fAStats.charHP > 0 && fBStats.charHP > 0)
         {
-            StartCoroutine(BattleTimer(2f, GameState.fight));
+            StartCoroutine(TransitionTimer(3f, GameState.fight));
         }
         else
         {
@@ -200,15 +200,6 @@ public class BattleScript : MonoBehaviour
         Debug.Log(message);
         Debug.Log(dmg);
         textBox.NewMessage(message);
-
-        if (fAStats.charHP > 0 && fBStats.charHP > 0)
-        {
-            StartCoroutine(BattleTimer(2f, GameState.fight));
-        }
-        else
-        {
-            StartCoroutine(TransitionTimer(2f, GameState.select));
-        }
     }
 
     public void BStart(GameObject fighterA, GameObject fighterB)
@@ -227,15 +218,6 @@ public class BattleScript : MonoBehaviour
         Debug.Log(message);
         Debug.Log(dmg);
         textBox.NewMessage(message);
-
-        if (fAStats.charHP > 0 && fBStats.charHP > 0)
-        {
-            StartCoroutine(BattleTimer(2f, GameState.fight));
-        }
-        else
-        {
-            StartCoroutine(TransitionTimer(2f, GameState.select));
-        }
     }
 
     public void TeamCheck()
@@ -285,13 +267,6 @@ public class BattleScript : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         gState = newState;
-        simulate = true;
-    }
-
-    IEnumerator BattleTimer(float delay, GameState repeat)
-    {
-        yield return new WaitForSeconds(delay);
-        gState = repeat;
         simulate = true;
     }
 }
